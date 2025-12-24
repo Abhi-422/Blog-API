@@ -1,78 +1,125 @@
-# Blog app API
-> ## Task Description
+# Blog App API
 
->Day 1-2: Requirement Analysis 
-## Understand Requirements:  
-<h2 style="text-align:center;">Core Features and Functionalities</h2>
+A robust RESTful API built with Node.js, Express, and MongoDB, featuring secure JWT authentication and full CRUD functionality for users, posts, and comments.
 
-- User Authentication & Authorization: Users must be able to sign up, log in, and manage their profiles. Different user roles (e.g., user, admin) will have different permissions (e.g., user can only create/edit/delete own posts).
+## 🚀 Features
 
-- Content Management (Posts): The ability to create, read, update, and delete (CRUD) blog posts. Posts should support titles, content, categories, tags, status (draft/published), author information, and publication dates.
+- **Authentication:** Secure Signup, Login, and Logout using JWT and Cookies.
+- **User Management:** Profile retrieval and secure password handling.
+- **Post System:** Create, Read, Update, and Delete posts.
+- **Comment System:** Interactive commenting on specific posts with ownership checks.
+- **Security:** Protected routes using a custom `verifyJWT` middleware.
+- **Reliability:** Comprehensive Unit and Integration testing using Jest and Supertest.
 
-- Comment Management: A system for readers to post comments on blog posts. This may include features like comment moderation, replies (nesting), and linking comments to specific users or posts.
+## 🛠 Tech Stack
 
-#
-<h2 style="text-align:center;">Define API Endpoints</h2>
-  - List the endpoints required for blog post and comment management (e.g., /posts, /posts/{id}, 
-/comments, /comments/{id})
+- **Runtime:** Node.js
+- **Framework:** Express.js
+- **Database:** MongoDB (via Mongoose)
+- **Security:** JSON Web Tokens (JWT) & bcrypt
+- **Testing:** Jest, Supertest, MongoDB Memory Server
 
+## 📋 Prerequisites
 
-| URL (Path) | HTTP Method | Description |
-| --- | --- | --- |
-| /api/posts | GET | Retrieve a list of all published blog posts (supports filtering, sorting, and pagination). |
-| /api/posts | POST | Create a new blog post (requires authentication). |
-| /api/posts/{id} | GET | Retrieve a specific blog post by its unique ID. |
-| /api/posts/{id} | PUT | Update an existing blog post (requires authentication/authorization). |
-| /api/posts/{id} | DELETE | Delete a specific blog post (requires authentication/authorization). |
+- [Node.js](nodejs.org) installed (v24 or higher recommended)
+- [MongoDB Atlas](www.mongodb.com) account or local MongoDB instance
 
-# 
-# Comment Endpoints
-- Comments are typically nested under the related blog post to show the hierarchical relationship: 
+## ⚙️ Setup Instructions
 
-| URL (Path) | HTTP Method | Description |
-| --- | --- | --- |
-| /api/posts/{id}/comments | GET | Retrieve all comments for a specific blog post. |
-| /api/posts/{id}/comments | POST | Add a new comment to a specific blog post (may require authentication). |
-| /api/comments/{commentId} | GET | Retrieve a specific comment by its unique ID. |
-| /api/comments/{commentId} | PUT | Update a specific comment (requires authentication/authorization). |
-| /api/comments/{commentId} | DELETE | Delete a specific comment (requires authentication/authorization/moderation rights). |
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Abhi-422/Blog-API.git
+   cd ./Backend/
 
-# 
-> Day 3–5: Database Design & Implementation
-# 1. Database Setup
-- For this project, I used MongoDB as the database.
-- I configured the connection using Mongoose in the backend and created the required collections for users, posts, and comments.
+2.  **Install dependencies:**
+    ```bash
+    npm install
+3.  Configure Environment Variables:  
+    Create a `.env` file in the root directory and add the following:
+    
+    env
 
-# 2. Schema Design
-  > Users Collection
-  - Stores all user-related information including authentication details.
+        PORT=8000
+        MONGODB_URI=your_mongodb_connection_string
+        CORS_ORIGIN=*
+        ACCESS_TOKEN_SECRET=your_access_token_secret
+        ACCESS_TOKEN_EXPIRY=15m
+        REFRESH_TOKEN_SECRET=your_refresh_token_secret
+        REFRESH_TOKEN_EXPIRY=7d
+        
+    
+    Use code with caution.
+    
+4.  Run the Server:
+    
+    ```bash
+    # Development mode
+    npm run dev
+    
+    # Production mode
+    npm start
+            
+Use code with caution.
+    
 
-- Fields:
-  - username
-  - email
-  - password
-  - role (user or admin)
+🧪 Testing
 
-> Posts Collection
-- Stores blog posts created by users.
-- Fields:
-  - title
-  - content
-  - author (ObjectId → User)
-  - createdAt
-  - updatedAt
+- To run the automated test suite (Unit & Integration tests):
 
-> Comments Collection
-- Stores comments made on posts.
-- Fields:
-  - postId (ObjectId → Post)
-  - author (ObjectId → User)
-  - content
-  - createdAt
+    ```bash
+    npm test
+Use code with caution.
 
-# 3. Relationships
-- One User → Many Posts
-- One Post → Many Comments
-- One User → Many Comments
+📡 API Endpoints
 
-Relationships are created using ObjectId references in MongoDB.
+Authentication
+
+| Method | Endpoint | Description | Auth Required |
+| --- | --- | --- | --- |
+| POST | `/api/v1/user/register` | Register a new user | No |
+| POST | `/api/v1/user/login` | Login and get tokens | No |
+| POST | `/api/v1/user/logout` | Logout and clear cookies | Yes |
+
+Posts
+
+| Method | Endpoint | Description | Auth Required |
+| --- | --- | --- | --- |
+| GET | `/api/v1/post` | Get all posts | No |
+| POST | `/api/v1/post` | Create a new post | Yes |
+| GET | `/api/v1/post/:id` | Get post by ID | No |
+| PUT | `/api/v1/post/:id` | Update post (Owner only) | Yes |
+| DELETE | `/api/v1/post/:id` | Delete post (Owner only) | Yes |
+
+Comments
+
+| Method | Endpoint | Description | Auth Required |
+| --- | --- | --- | --- |
+| GET | `/api/v1/comment/post/:postId` | Get all comments for a post | No |
+| POST | `/api/v1/comment/post/:postId` | Add a comment to a post | Yes |
+| GET | `/api/v1/comment/:commentId` | Get comment BY Id | No |
+| PUT | `/api/v1/comment/:commentId` | Add a comment to a post | Yes |
+| DELETE | `/api/v1/comment/:commentId` | Delete a comment | Yes |
+
+🔐 How to use Authentication
+
+For protected routes, the API expects a JWT token. This is primarily handled via Cookies (`accessTocken`). If using a client that doesn't support cookies, you can provide the token in the header:
+
+text
+
+    Authorization: Bearer <your_access_token>
+    
+
+Use code with caution.
+
+📄 Documentation
+
+You can find the detailed request/response schemas in the [Postman Documentation](https://mystudy422-7691377.postman.co/workspace/Abhishek-Patange's-Workspace~3350f12a-5617-41ea-8a97-fa7e63b2325e/collection/50779629-ac89d111-24fa-406a-a61a-eba5ea8a9e40?action=share&source=copy-link&creator=50779629).
+
+    
+### Final Step: Commit the Documentation
+    
+Once you've saved the file, run this final command:
+
+```bash
+git add README.md
+git commit -m "docs: Add comprehensive README and user guide"
