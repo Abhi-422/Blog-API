@@ -4,28 +4,28 @@ import jwt from "jsonwebtoken";
 
 const userSchema = new mongoose.Schema(
   {
-    username: { 
-        type: String, 
-        required: true, 
-        unique: true 
+    username: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    email: { 
-        type: String, 
-        required: true, 
-        unique: true 
+    email: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    password: { 
-        type: String, 
-        required: true 
+    password: {
+      type: String,
+      required: true,
     },
     isAdmin: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false,
     },
     refreshToken: {
-    type: String,
-    default: null
-  }
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );
@@ -43,33 +43,34 @@ userSchema.methods.isPasswordMatch = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-
-userSchema.methods.generateAccessToken = function() { 
+userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
-    {_id : this._id,
-    email : this.email,
-    username : this.username,
-    fullName : this.fullName,
+    {
+      _id: this._id,
+      email: this.email,
+      username: this.username,
+      fullName: this.fullName,
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
-      expiresIn:process.env.ACCESS_TOKEN_EXPIRY
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
     }
-  )
-}
+  );
+};
 
-userSchema.methods.generateRefreshToken = function() { 
+userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
-    {_id : this._id,
-    email : this.email,
-    username : this.username,
-    fullName : this.fullName,
+    {
+      _id: this._id,
+      email: this.email,
+      username: this.username,
+      fullName: this.fullName,
     },
     process.env.REFRESH_TOKEN_SECRET,
     {
-      expiresIn:process.env.REFRESH_TOKEN_EXPIRY
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
     }
-  )
-}
+  );
+};
 
 export const User = mongoose.model("User", userSchema);

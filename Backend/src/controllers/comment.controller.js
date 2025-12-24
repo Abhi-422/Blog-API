@@ -46,7 +46,7 @@ const addCommentToPost = async (req, res) => {
     throw new ApiError(500, "Failed to retrieve created comment");
   }
   //return created comment in response
-  res.json(new ApiResponse(201, "Comment added successfully", createdComment));
+  res.status(201).json(new ApiResponse(201, "Comment added successfully", createdComment));
 };
 
 const getCommentById = async (req, res) => {
@@ -70,6 +70,11 @@ const updateCommentById = async (req, res) => {
   if (!comment) {
     throw new ApiError(404, "Comment not found");
   }
+  const loggedInUserId = req.user._id;
+  if (comment.user.toString() !== loggedInUserId.toString()) {
+    throw new ApiError(403, "You are not authorized to update this comment");
+  }
+  //update comment data
   const { content } = req.body;
   if (!content) {
     throw new ApiError(400, "Content is required to update comment");
@@ -95,6 +100,10 @@ const deleteCommentById = async (req, res) => {
   const comment = await Comment.findById(commentId);
   if (!comment) {
     throw new ApiError(404, "Comment not found");
+  }
+  const loggedInUserId = req.user._id;
+  if (comment.user.toString() !== loggedInUserId.toString() && req.user.isAdmin !== true) {
+    throw new ApiError(403, "You are not authorized to delete this comment");
   }
   //delete comment from database
   await Comment.findByIdAndDelete(commentId);

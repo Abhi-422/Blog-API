@@ -18,7 +18,10 @@ const createPost = async (req, res) => {
   if (!title || !content || !author) {
     throw new ApiError(400, "Title, content and author are required");
   }
-
+  const loggedInUserId = req.user._id;
+  if (author !== loggedInUserId.toString()) {
+    throw new ApiError(403, "You are not authorized to create post for another user");
+  }
   // save to database
   const newPost = await Post.create({ title, content, author });
   if (!newPost) {
@@ -30,7 +33,7 @@ const createPost = async (req, res) => {
     throw new ApiError(500, "Failed to retrieve created post");
   }
     // return created post in response
-    res.json(new ApiResponse(201, "Post created successfully", createdPost));
+    res.status(201).json(new ApiResponse(201, "Post created successfully", createdPost));
 };
 
 // get a single post by ID
@@ -53,6 +56,12 @@ const updatePostById = async (req, res) => {
     if (!post) {
         throw new ApiError(404, "Post not found");
     }
+
+    const loggedInUserId = req.user._id;
+    if (post.author.toString() !== loggedInUserId.toString()) {
+        throw new ApiError(403, "You are not authorized to update this post");
+    }
+
   // update post data
     const { title, content } = req.body;
     if (!title && !content) {
@@ -77,6 +86,10 @@ const deletePostById = async (req, res) => {
     const post = await Post.findById(postId);
     if (!post) {
         throw new ApiError(404, "Post not found");
+    }
+    const loggedInUserId = req.user._id;
+    if (post.author.toString() !== loggedInUserId.toString() && req.user.isAdmin !== true) {
+        throw new ApiError(403, "You are not authorized to delete this post");
     }
     // delete post from database
     await Post.findByIdAndDelete(postId);
